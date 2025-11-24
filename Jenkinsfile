@@ -1,33 +1,14 @@
 pipeline {
-
- agent any
-
- tools {jdk 'JAVA_HOME’, maven 'M2_HOME'}
-
- stages {
-
- stage('GIT') {
-
-           steps {
-
-               git branch: 'master',
-
-               url: ' https://github.com/hwafa/timesheetproject.git'
-
-          }
-
-     }
-
- stage ('Compile Stage') {
-
- steps {
-
- sh 'mvn clean compile'
-
- }
-
- }
-
- }
-
+    agent any
+    environment {
+        JAVA_HOME = "/usr/lib/jvm/java-11-openjdk"
+        M2_HOME   = "/usr/share/maven"
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh "${M2_HOME}/bin/mvn clean package"
+            }
+        }
+    }
 }
