@@ -1,11 +1,11 @@
-FROM eclipse-temurin:17-jdk-jammy
+# Utiliser l'image Alpine officielle
+FROM alpine:latest
 
-WORKDIR /app
+# Installer Java 11
+RUN apk add --no-cache openjdk11
 
-# On copie le JAR correct (pas le .original)
-COPY target/student-management-0.0.1-SNAPSHOT.jar app.jar
+# Définir JAVA_HOME
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 
-# Ton Spring Boot écoute sur 8089
-EXPOSE 8089
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Vérification de la version Java
+CMD ["java", "-version"]
