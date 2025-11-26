@@ -1,11 +1,9 @@
-# Utiliser l'image Alpine officielle
 FROM alpine:latest
 
-# Installer Java 11
-RUN apk add --no-cache openjdk11
+RUN apk update && apk add openjdk11
 
-# Définir JAVA_HOME
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+COPY target/*.jar app.jar
 
-# Vérification de la version Java
-CMD ["java", "-version"]
+EXPOSE 8080
+
+CMD ["java", "-jar", "/app.jar"]
