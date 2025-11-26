@@ -1,13 +1,22 @@
 pipeline {
     agent any
+
     tools {
         jdk 'JAVA_HOME'
         maven 'M2_HOME'
     }
+
     stages {
         stage('Build') {
             steps {
                 sh "mvn -v"
+                sh "mvn clean package"
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
     }
