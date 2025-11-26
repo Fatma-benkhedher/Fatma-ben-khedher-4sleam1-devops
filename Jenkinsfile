@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Change ici avec TON pseudo Docker Hub
-        DOCKERHUB_REPO = 'fatmabk/Fatma-ben-khedher-4sleam1-devops'
+        DOCKERHUB_REPO = 'fatmabk/fatma-ben-khedher-4sleam1-devops'
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')  // à créer dans Jenkins
     }
