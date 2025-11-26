@@ -5,7 +5,7 @@ pipeline {
         // Change ici avec TON pseudo Docker Hub
         DOCKERHUB_REPO = 'fatmabk/student-management'
         IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-feriel014')  // à créer dans Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')  // à créer dans Jenkins
     }
 
     stages {
