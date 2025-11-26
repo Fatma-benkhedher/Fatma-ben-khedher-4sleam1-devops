@@ -2,26 +2,17 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_REPO = 'fatmabk/student-management'
+        // Change ici avec TON pseudo Docker Hub
+        DOCKERHUB_REPO = 'fatmabk/Fatma-ben-khedher-4sleam1-devops'
         IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')
-    }
-
-    tools {
-        jdk 'JAVA_HOME'
-        maven 'M2_HOME'
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')  // à créer dans Jenkins
     }
 
     stages {
         stage('Récupération Git') {
             steps {
+                echo 'Récupération du code depuis GitHub...'
                 git url: 'https://github.com/Fatma-benkhedher/Fatma-ben-khedher-4sleam1-devops.git', branch: 'main'
-            }
-        }
-
-        stage('Compilation') {
-            steps {
-                sh 'mvn clean compile -DskipTests'
             }
         }
 
@@ -33,22 +24,37 @@ pipeline {
 
         stage('Création du livrable') {
             steps {
-                sh 'mvn package -Dmaven.test.skip=true'
+                sh 'mvn clean package -Dmaven.test.skip=true'
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Build Docker Image') {
             steps {
                 sh """
                     docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} .
                     docker tag ${DOCKERHUB_REPO}:${IMAGE_TAG} ${DOCKERHUB_REPO}:latest
-                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                    docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
-                    docker push ${DOCKERHUB_REPO}:latest
-                    docker logout
                 """
             }
+        }
+
+        stage('Push Docker Hub') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh """
+                    docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
+                    docker push ${DOCKERHUB_REPO}:latest
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout || true'
+        }
+        success {
+            echo "Image poussée avec succès ! https://github.com/Fatma-benkhedher/Fatma-ben-khedher-4sleam1-devops.git"
         }
     }
 }
