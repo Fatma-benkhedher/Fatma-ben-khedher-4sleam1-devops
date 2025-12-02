@@ -22,17 +22,16 @@ pipeline {
             }
         }
 
-      stage('Check Coverage > 0%') {
+    stage('Check Coverage > 0%') {
     steps {
         script {
-            // Vérifier que le fichier JaCoCo existe
             if (!fileExists('target/site/jacoco/jacoco.xml')) {
                 error "Rapport JaCoCo non trouvé !"
             }
 
-            // Extraire la couverture totale avec sed
+            // Extraire la couverture des lignes
             def coverage = sh(
-                script: "sed -n 's/.*covered=\"\\([0-9]\\+\\)\".*/\\1/p' target/site/jacoco/jacoco.xml | head -1",
+                script: "xmllint --xpath 'sum(//counter[@type=\"LINE\"]/@covered) div sum(//counter[@type=\"LINE\"]/@covered + //counter[@type=\"LINE\"]/@missed) * 100' target/site/jacoco/jacoco.xml 2>/dev/null | awk '{printf \"%d\", $1}'",
                 returnStdout: true
             ).trim()
 
@@ -44,6 +43,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Analyse SonarQube') {
