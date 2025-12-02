@@ -22,12 +22,17 @@ pipeline {
             }
         }
 
-        stage('Check Coverage > 0%') {
+      stage('Check Coverage > 0%') {
     steps {
         script {
-            
+            // Vérifier que le fichier JaCoCo existe
+            if (!fileExists('target/site/jacoco/jacoco.xml')) {
+                error "Rapport JaCoCo non trouvé !"
+            }
+
+            // Extraire la couverture totale avec sed
             def coverage = sh(
-                script: """awk -F 'covered="' '{print \$2}' target/site/jacoco/jacoco.xml | cut -d'"' -f1 | head -1""",
+                script: "sed -n 's/.*covered=\"\\([0-9]\\+\\)\".*/\\1/p' target/site/jacoco/jacoco.xml | head -1",
                 returnStdout: true
             ).trim()
 
