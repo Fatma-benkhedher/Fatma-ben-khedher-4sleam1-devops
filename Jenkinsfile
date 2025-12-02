@@ -23,21 +23,23 @@ pipeline {
         }
 
         stage('Check Coverage > 0%') {
-            steps {
-                script {
-                    def coverage = sh(
-                        script: "grep -oPm1 '(?<=<counter type=\"INSTRUCTION\" missed=\"[0-9]+\" covered=\")[0-9]+' target/site/jacoco/jacoco.xml",
-                        returnStdout: true
-                    ).trim()
+    steps {
+        script {
+            
+            def coverage = sh(
+                script: """awk -F 'covered="' '{print \$2}' target/site/jacoco/jacoco.xml | cut -d'"' -f1 | head -1""",
+                returnStdout: true
+            ).trim()
 
-                    if (coverage == "" || coverage == "0") {
-                        error " Couverture JaCoCo = 0%. Pipeline arrêté."
-                    } else {
-                        echo " Couverture détectée : ${coverage}"
-                    }
-                }
+            if (!coverage || coverage == "0") {
+                error "Couverture JaCoCo = 0%. Pipeline arrêté."
+            } else {
+                echo "Couverture détectée : ${coverage}%"
             }
         }
+    }
+}
+
 
         stage('Analyse SonarQube') {
             steps {
