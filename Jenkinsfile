@@ -22,16 +22,16 @@ pipeline {
             }
         }
 
-    stage('Check Coverage > 0%') {
+   stage('Check Coverage > 0%') {
     steps {
         script {
             if (!fileExists('target/site/jacoco/jacoco.xml')) {
                 error "Rapport JaCoCo non trouvé !"
             }
 
-            // Extraire la couverture des lignes
+            // Extraire la couverture des lignes avec $1 correctement échappé
             def coverage = sh(
-                script: "xmllint --xpath 'sum(//counter[@type=\"LINE\"]/@covered) div sum(//counter[@type=\"LINE\"]/@covered + //counter[@type=\"LINE\"]/@missed) * 100' target/site/jacoco/jacoco.xml 2>/dev/null | awk '{printf \"%d\", $1}'",
+                script: 'xmllint --xpath \'sum(//counter[@type="LINE"]/@covered) div sum(//counter[@type="LINE"]/@covered + //counter[@type="LINE"]/@missed) * 100\' target/site/jacoco/jacoco.xml 2>/dev/null | awk \'{printf "%d", \\$1}\'',
                 returnStdout: true
             ).trim()
 
@@ -43,6 +43,7 @@ pipeline {
         }
     }
 }
+
 
 
 
