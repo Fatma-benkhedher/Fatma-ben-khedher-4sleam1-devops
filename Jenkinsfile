@@ -5,41 +5,55 @@ pipeline {
         DOCKERHUB_REPO = 'fatmabk/fatma-ben-khedher-4sleam1-devops'
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')
-        SONAR_TOKEN = credentials('sonarqube-token')   // Token Sonar
+        SONAR_TOKEN = credentials('sonarqube-token')
     }
 
     stages {
 
         stage('Récupération Git') {
             steps {
-                echo 'Récupération du code depuis GitHub...'
                 git url: 'https://github.com/Fatma-benkhedher/Fatma-ben-khedher-4sleam1-devops.git', branch: 'main'
+            }
+        }
+
+        stage('Tests unitaires + JaCoCo') {
+            steps {
+                sh 'mvn clean test'
+            }
+        }
+
+        stage('Check Coverage > 0%') {
+            steps {
+                script {
+                    def coverage = sh(
+                        script: "grep -oPm1 '(?<=<counter type=\"INSTRUCTION\" missed=\"[0-9]+\" covered=\")[0-9]+' target/site/jacoco/jacoco.xml",
+                        returnStdout: true
+                    ).trim()
+
+                    if (coverage == "" || coverage == "0") {
+                        error " Couverture JaCoCo = 0%. Pipeline arrêté."
+                    } else {
+                        echo " Couverture détectée : ${coverage}"
+                    }
+                }
             }
         }
 
         stage('Analyse SonarQube') {
             steps {
-                echo "Analyse de la qualité du code..."
                 withSonarQubeEnv('SonarQubeServer') {
                     sh """
                         mvn sonar:sonar \
-                        -Dsonar.projectKey=FatmaDevopsProject \
-                        -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=$SONAR_TOKEN
+                            -Dsonar.projectKey=FatmaDevopsProject \
+                            -Dsonar.login=$SONAR_TOKEN
                     """
                 }
             }
         }
 
-        stage('Tests unitaires') {
-            steps {
-                sh 'mvn test -Dmaven.test.skip=true'
-            }
-        }
-
         stage('Création du livrable') {
             steps {
-                sh 'mvn clean package -Dmaven.test.skip=true'
+                sh 'mvn package -Dmaven.test.skip=true'
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
@@ -69,7 +83,7 @@ pipeline {
             sh 'docker logout || true'
         }
         success {
-            echo "Image poussée avec succès !"
+            echo "Pipeline terminé avec succès !"
         }
     }
 }
