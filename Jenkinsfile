@@ -30,7 +30,11 @@ pipeline {
             }
 
             def coverage = sh(
-                script: 'xmllint --xpath "sum(//counter[@type=\'LINE\']/@covered) div sum(//counter[@type=\'LINE\']/@covered + //counter[@type=\'LINE\']/@missed) * 100" target/site/jacoco/jacoco.xml | awk \'{printf "%d", $1}\'',
+                script: '''
+                    covered=$(xmllint --xpath "sum(//counter[@type='LINE']/@covered)" target/site/jacoco/jacoco.xml)
+                    missed=$(xmllint --xpath "sum(//counter[@type='LINE']/@missed)" target/site/jacoco/jacoco.xml)
+                    echo $((covered*100/(covered+missed)))
+                ''',
                 returnStdout: true
             ).trim()
 
@@ -42,11 +46,6 @@ pipeline {
         }
     }
 }
-
-
-
-
-
         stage('Analyse SonarQube') {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
