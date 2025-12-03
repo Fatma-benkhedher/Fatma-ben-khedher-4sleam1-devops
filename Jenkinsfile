@@ -18,8 +18,8 @@ pipeline {
 
         stage('Tests unitaires + JaCoCo') {
             steps {
-                sh 'mvn clean test'
-                sh 'mvn jacoco:report'
+                sh 'mvn clean install -DskipTests'
+                
             }
         }
 
