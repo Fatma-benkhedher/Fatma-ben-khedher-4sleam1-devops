@@ -7,7 +7,7 @@ import tn.esprit.studentmanagement.services.CourseService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = tn.esprit.studentmanagement.StudentManagementApplication.class)
 class CourseServiceTest {
 
     @Autowired
