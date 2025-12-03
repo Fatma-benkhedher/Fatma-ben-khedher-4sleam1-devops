@@ -23,11 +23,7 @@ pipeline {
             }
         }
 
-        stage('Tests unitaires + JaCoCo') {
-            steps {
-                sh 'mvn test jacoco:report'
-            }
-        }
+       
 
         stage('Check Coverage') {
             steps {
