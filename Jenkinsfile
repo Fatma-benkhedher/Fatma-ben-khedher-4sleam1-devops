@@ -49,13 +49,17 @@ pipeline {
                 }
             }
         }
-*/stage('Analyse SonarQube') {
-    withCredentials([string(credentialsId: 'jenkins-sonar', variable: 'SONAR_TOKEN')]) {
-        withSonarQubeEnv('SonarQubeServer') {
-            sh "mvn sonar:sonar -Dsonar.projectKey=FatmaDevopsProject -Dsonar.login=${SONAR_TOKEN} -Dsonar.java.binaries=target/classes"
+*/
+        stage('Analyse SonarQube') {
+    steps {
+        withCredentials([string(credentialsId: 'jenkins-sonar', variable: 'SONAR_TOKEN')]) {
+            withSonarQubeEnv('SonarQubeServer') {
+                sh "mvn sonar:sonar -Dsonar.projectKey=FatmaDevopsProject -Dsonar.login=${SONAR_TOKEN} -Dsonar.java.binaries=target/classes"
+            }
         }
     }
 }
+
 
         stage('Build Docker Image') {
             steps {
