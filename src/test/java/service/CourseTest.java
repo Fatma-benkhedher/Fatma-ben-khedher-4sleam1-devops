@@ -1,43 +1,35 @@
 package service;
-
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import tn.esprit.studentmanagement.entities.Course;
+import tn.esprit.studentmanagement.services.CourseService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CourseTest {
-    @Test
-    void testCourseSettersAndGetters() {
-        Course course = new Course();
+@SpringBootTest
+class CourseServiceTest {
 
-        course.setIdCourse(1L);
+    @Autowired
+    private CourseService courseService;
+
+    @Test
+    void testAddCourse() {
+        Course course = new Course();
         course.setName("Java Basics");
         course.setCode("CS101");
         course.setCredit(4);
-        course.setDescription("Introduction to Java programming");
+        course.setDescription("Introduction to Java");
 
-        assertEquals(1L, course.getIdCourse());
-        assertEquals("Java Basics", course.getName());
-        assertEquals("CS101", course.getCode());
-        assertEquals(4, course.getCredit());
-        assertEquals("Introduction to Java programming", course.getDescription());
+        Course saved = courseService.addCourse(course);
+
+        assertNotNull(saved.getIdCourse());
+        assertEquals("Java Basics", saved.getName());
     }
 
     @Test
-    void testCourseConstructor() {
-        Course course = new Course(
-                1L,
-                "Web Development",
-                "WD202",
-                6,
-                "HTML, CSS, JS basics",
-                null
-        );
-
-        assertEquals(1L, course.getIdCourse());
-        assertEquals("Web Development", course.getName());
-        assertEquals("WD202", course.getCode());
-        assertEquals(6, course.getCredit());
-        assertEquals("HTML, CSS, JS basics", course.getDescription());
+    void testGetAllCourses() {
+        courseService.addCourse(new Course(null, "Spring Boot", "CS102", 5, "Intro Spring", null));
+        assertFalse(courseService.getAllCourses().isEmpty());
     }
 }
