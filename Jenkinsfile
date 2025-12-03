@@ -16,15 +16,13 @@ pipeline {
             }
         }
 
-        stage('Tests unitaires + JaCoCo') {
-            steps {
-                steps {
-                sh 'mvn clean test'
-                sh 'mvn jacoco:report'
-            }
-                
-            }
-        }
+       stage('Tests unitaires + JaCoCo') {
+    steps {
+        sh 'mvn clean test'
+        sh 'mvn jacoco:report'
+    }
+}
+
 
 stage('Check Coverage') {
     steps {
