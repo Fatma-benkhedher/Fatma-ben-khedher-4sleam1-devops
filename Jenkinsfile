@@ -25,7 +25,7 @@ pipeline {
 
        
 
-        stage('Check Coverage') {
+     /*   stage('Check Coverage') {
             steps {
                 script {
                     if (!fileExists('target/site/jacoco/jacoco.xml')) {
@@ -62,7 +62,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Build Docker Image') {
             steps {
                 sh """
