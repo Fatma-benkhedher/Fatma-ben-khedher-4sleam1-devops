@@ -16,38 +16,43 @@ pipeline {
             }
         }
 
-       stage('Tests unitaires + JaCoCo') {
-    steps {
-        sh 'mvn clean test'
-        sh 'mvn jacoco:report'
-    }
-}
-
-
-stage('Check Coverage') {
-    steps {
-        script {
-            if (!fileExists('target/site/jacoco/jacoco.xml')) {
-                error "Rapport JaCoCo non trouvé !"
+        stage('Création du livrable') {
+            steps {
+                sh 'mvn clean package'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
-
-            def coverage = sh(
-                script: '''
-                    covered=$(xmllint --xpath "sum(//counter[@type='LINE']/@covered)" target/site/jacoco/jacoco.xml)
-                    missed=$(xmllint --xpath "sum(//counter[@type='LINE']/@missed)" target/site/jacoco/jacoco.xml)
-                    echo $((covered*100/(covered+missed)))
-                ''',
-                returnStdout: true
-            ).trim()
-
-            if (coverage.toInteger() == 0) {
-                error "Couverture JaCoCo = 0%. Pipeline arrêté."
-            }
-
-            echo "Couverture détectée : ${coverage}%"
         }
-    }
-}
+
+        stage('Tests unitaires + JaCoCo') {
+            steps {
+                sh 'mvn test jacoco:report'
+            }
+        }
+
+        stage('Check Coverage') {
+            steps {
+                script {
+                    if (!fileExists('target/site/jacoco/jacoco.xml')) {
+                        error "Rapport JaCoCo non trouvé !"
+                    }
+
+                    def coverage = sh(
+                        script: '''
+                            covered=$(xmllint --xpath "sum(//counter[@type='LINE']/@covered)" target/site/jacoco/jacoco.xml)
+                            missed=$(xmllint --xpath "sum(//counter[@type='LINE']/@missed)" target/site/jacoco/jacoco.xml)
+                            echo $((covered*100/(covered+missed)))
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    if (coverage.toInteger() == 0) {
+                        error "Couverture JaCoCo = 0%. Pipeline arrêté."
+                    }
+
+                    echo "Couverture détectée : ${coverage}%"
+                }
+            }
+        }
 
         stage('Analyse SonarQube') {
             steps {
@@ -55,16 +60,10 @@ stage('Check Coverage') {
                     sh """
                         mvn sonar:sonar \
                             -Dsonar.projectKey=FatmaDevopsProject \
-                            -Dsonar.login=$SONAR_TOKEN
+                            -Dsonar.login=$SONAR_TOKEN \
+                            -Dsonar.java.binaries=target/classes
                     """
                 }
-            }
-        }
-
-        stage('Création du livrable') {
-            steps {
-                sh 'mvn package -Dmaven.test.skip=true'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
 
