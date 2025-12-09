@@ -16,50 +16,31 @@ pipeline {
             }
         }
 
-        stage('Création du livrable') {
+        stage('Build & Test') {
             steps {
                 sh 'mvn clean verify'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
 
-       
-
-     /*   stage('Check Coverage') {
+        stage('SonarQube Analysis') {
             steps {
-                script {
-                    if (!fileExists('target/site/jacoco/jacoco.xml')) {
-                        error "Rapport JaCoCo non trouvé !"
-                    }
-
-                    def coverage = sh(
-                        script: '''
-                            covered=$(xmllint --xpath "sum(//counter[@type='LINE']/@covered)" target/site/jacoco/jacoco.xml)
-                            missed=$(xmllint --xpath "sum(//counter[@type='LINE']/@missed)" target/site/jacoco/jacoco.xml)
-                            echo $((covered*100/(covered+missed)))
-                        ''',
-                        returnStdout: true
-                    ).trim()
-
-                    if (coverage.toInteger() == 0) {
-                        error "Couverture JaCoCo = 0%. Pipeline arrêté."
-                    }
-
-                    echo "Couverture détectée : ${coverage}%"
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=student-management \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
-*/
-        stage('Analyse SonarQube') {
-    steps {
-        withCredentials([string(credentialsId: 'jenkins-sonar', variable: 'SONAR_TOKEN')]) {
-            withSonarQubeEnv('SonarQubeServer') {
-                sh "mvn sonar:sonar -Dsonar.projectKey=FatmaDevopsProject -Dsonar.login=${SONAR_TOKEN} -Dsonar.java.binaries=target/classes"
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
-    }
-}
-
 
         stage('Build Docker Image') {
             steps {
