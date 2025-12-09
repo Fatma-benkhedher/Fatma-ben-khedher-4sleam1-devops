@@ -1,11 +1,9 @@
-# Use Java 17 base image
-FROM openjdk:17-alpine
+FROM alpine:latest
 
-# Copy your Spring Boot jar
+RUN apk update && apk add openjdk11
+
 COPY target/*.jar app.jar
 
-# Expose the port your app uses
 EXPOSE 8080
 
-# Run the app
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+CMD ["java", "-jar", "/app.jar"]
