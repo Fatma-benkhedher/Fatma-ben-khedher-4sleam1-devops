@@ -18,8 +18,7 @@ pipeline {
 
         stage('Création du livrable') {
             steps {
-                sh 'mvn clean verify
-'
+                sh 'mvn clean verify'
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
