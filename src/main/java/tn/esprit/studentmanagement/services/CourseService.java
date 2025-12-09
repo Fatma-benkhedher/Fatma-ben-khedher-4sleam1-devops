@@ -7,11 +7,11 @@ import tn.esprit.studentmanagement.repositories.CourseRepository;
 import java.util.List;
 
 @Service
-public class CourseTest {
+public class CourseService {
 
     private final CourseRepository repository;
 
-    public CourseTest(CourseRepository repository) {
+    public CourseService(CourseRepository repository) {
         this.repository = repository;
     }
 

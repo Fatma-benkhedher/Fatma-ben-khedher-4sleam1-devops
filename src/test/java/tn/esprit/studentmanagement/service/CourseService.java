@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CourseTest {
+public class CourseService {
 
     @Mock
     private CourseRepository courseRepository;
 
     @InjectMocks
-    private tn.esprit.studentmanagement.services.CourseTest courseService;
+    private tn.esprit.studentmanagement.services.CourseService courseService;
 
     @Test
     public void testAddCourse() {
