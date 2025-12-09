@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_REPO = 'fatmabk/fatma-ben-khedher-4sleam1-devops'
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')
-        SONAR_TOKEN = credentials('sonarqube-token')
+        SONAR_TOKEN = credentials('sonarqube-admin')
     }
 
     stages {
