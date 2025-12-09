@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tn.esprit.studentmanagement.entities.Course;
 import tn.esprit.studentmanagement.repositories.CourseRepository;
-import tn.esprit.studentmanagement.services.CourseService;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +21,7 @@ public class CourseTest {
     private CourseRepository courseRepository;
 
     @InjectMocks
-    private CourseService courseService;
+    private tn.esprit.studentmanagement.services.CourseTest courseService;
 
     @Test
     public void testAddCourse() {
