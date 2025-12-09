@@ -4,11 +4,11 @@ metadata:
   name: mysql-pv
 spec:
   capacity:
-    storage: 5Gi
+    storage: 1Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /mnt/data/mysql
+    path: "/data/mysql"
 
 ---
 apiVersion: v1
@@ -20,7 +20,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 1Gi
 
 ---
 apiVersion: apps/v1
@@ -42,9 +42,9 @@ spec:
           image: mysql:8.0
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "rootpassword"
+              value: root123
             - name: MYSQL_DATABASE
-              value: "studentdbb"
+              value: springdb
           ports:
             - containerPort: 3306
           volumeMounts:
@@ -59,7 +59,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: mysql-service
 spec:
   selector:
     app: mysql
