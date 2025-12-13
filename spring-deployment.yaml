@@ -1,49 +1,33 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: spring
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: spring
-  template:
-    metadata:
-      labels:
-        app: spring
-    spec:
-      containers:
-        - name: spring
-          image: fatmabk/fatma-ben-khedher-4sleam1-devops:latest
-          ports:
-            - containerPort: 8080
-          envFrom:
-            - configMapRef:
-                name: spring-config
-            - secretRef:
-                name: spring-secret
----
+# ConfigMap pour la configuration de la base de données
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: spring-config
+  namespace: devops
 data:
-  SPRING_DATASOURCE_URL: jdbc:mysql://mysql-service:3306/springdb
+  DB_HOST: "mysql-service"
+  DB_PORT: "3307"
+  DB_NAME: "studentdb"
 
 ---
+# Secret pour les credentials (encodés en base64)
 apiVersion: v1
 kind: Secret
 metadata:
   name: spring-secret
-type: opaque
+  namespace: devops
+type: Opaque
 data:
-  SPRING_DATASOURCE_USERNAME: c3ByaW5n
-  SPRING_DATASOURCE_PASSWORD: c3ByaW5nMTIz
+  DB_USER: dXNlcg==        # user en base64
+  DB_PASSWORD: cGFzc3dvcmQ= # password en base64
+
 ---
+# Deployment Spring Boot
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-app
+  namespace: devops
 spec:
   replicas: 2
   selector:
@@ -57,24 +41,51 @@ spec:
       containers:
         - name: spring-app
           image: fatmabk/fatma-ben-khedher-4sleam1-devops:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8080
-          envFrom:
-            - configMapRef:
-                name: spring-config
-            - secretRef:
-                name: spring-secret
+            - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql-service:3307/studentdb?createDatabaseIfNotExist=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: spring-secret
+                  key: DB_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spring-secret
+                  key: DB_PASSWORD
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-config
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-config
+                  key: DB_NAME
 
 ---
+# Service Spring Boot (NodePort)
 apiVersion: v1
 kind: Service
 metadata:
   name: spring-service
+  namespace: devops
 spec:
   selector:
     app: spring-app
   ports:
-    - port: 8080
-      targetPort: 8080
+    - protocol: TCP
+      port: 8080
+      targetPort: 8089
       nodePort: 30080
   type: NodePort
