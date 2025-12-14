@@ -26,12 +26,10 @@ stage('Start SonarQube Pod') {
     steps {
         sh """
             kubectl apply -f sonarqube.yaml --kubeconfig=${KUBE_CONFIG}
-            kubectl rollout status deployment/sonarqube -n sonarqube --kubeconfig=${KUBE_CONFIG} --timeout=120s
+            kubectl rollout status deployment/sonarqube -n devops --kubeconfig=${KUBE_CONFIG} --timeout=120s
         """
     }
 }
-
-
        stage('SonarQube Analysis') {
     steps {
         withCredentials([string(credentialsId: 'sonar-kuber-jenkins', variable: 'SONAR_TOKEN')]) {
