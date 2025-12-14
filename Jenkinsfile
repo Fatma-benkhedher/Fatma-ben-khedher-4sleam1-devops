@@ -63,24 +63,21 @@ stage('Start SonarQube Pod') {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                script {
-                    try {
-                        timeout(time: 5, unit: 'MINUTES') {
-                            def qg = waitForQualityGate()
-                            if (qg.status != 'OK') {
-                                error "Quality Gate failed: ${qg.status}"
-                            } else {
-                                echo "Quality Gate passed: ${qg.status}"
-                            }
-                        }
-                    } catch (err) {
-                        error "Quality Gate check failed: ${err}"
-                    }
+      stage('Quality Gate') {
+    steps {
+        script {
+            timeout(time: 5, unit: 'MINUTES') {
+                def qg = waitForQualityGate()
+                if (qg.status != 'OK') {
+                    error "Quality Gate failed: ${qg.status}"
+                } else {
+                    echo "Quality Gate passed: ${qg.status}"
                 }
             }
         }
+    }
+}
+
 
         stage('Build Docker Image') {
             steps {
