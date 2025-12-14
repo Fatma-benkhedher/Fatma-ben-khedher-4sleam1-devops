@@ -30,14 +30,14 @@ stage('Start SonarQube Pod') {
         """
     }
 }
-       stage('SonarQube Analysis') {
+      stage('SonarQube Analysis') {
     steps {
-        withCredentials([string(credentialsId: 'sonar-kuber-jenkins', variable: 'SONAR_TOKEN')]) {
+        withSonarQubeEnv('sonarqube-server') { // Replace with your Jenkins SonarQube server name
             sh """
                 mvn sonar:sonar \
                     -Dsonar.projectKey=student-management \
                     -Dsonar.host.url=http://localhost:30090 \
-                    -Dsonar.login=$SONAR_TOKEN
+                    -Dsonar.login=${SONAR_TOKEN}
             """
         }
     }
@@ -63,7 +63,7 @@ stage('Start SonarQube Pod') {
             }
         }
 
-      stage('Quality Gate') {
+    stage('Quality Gate') {
     steps {
         script {
             timeout(time: 5, unit: 'MINUTES') {
@@ -77,8 +77,6 @@ stage('Start SonarQube Pod') {
         }
     }
 }
-
-
         stage('Build Docker Image') {
             steps {
                 sh """
