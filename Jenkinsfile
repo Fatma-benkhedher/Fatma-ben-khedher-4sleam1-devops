@@ -5,7 +5,8 @@ pipeline {
         DOCKERHUB_REPO = 'fatmabk/fatma-ben-khedher-4sleam1-devops'
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-fatmabk')
-        SONAR_TOKEN = credentials('sonarqube-admin')
+        SONAR_TOKEN = credentials('sonar-kuber-jenkins')
+        KUBE_CONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -21,33 +22,65 @@ pipeline {
                 sh 'mvn clean verify'
             }
         }
+stage('Start SonarQube Pod') {
+    steps {
+        sh "kubectl apply -f sonarqube.yaml --kubeconfig=${KUBE_CONFIG}"
+        sh "kubectl rollout status deployment/sonarqube --kubeconfig=${KUBE_CONFIG} --timeout=120s"
+    }
+}
 
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
                     sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=student-management \
-                        -Dsonar.login=${SONAR_TOKEN}
-                    """
+   mvn sonar:sonar \
+     -Dsonar.projectKey=student-management \
+     -Dsonar.host.url=http://localhost:30090 \
+     -Dsonar.login=$SONAR_TOKEN
+"""
                 }
             }
         }
 
-      stage('Quality Gate') {
-    steps {
-        script {
-            try {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+        stage('Check Coverage') {
+            steps {
+                script {
+                    def response = sh(
+                        script: "curl -s -u ${SONAR_TOKEN}: http://localhost:30090/api/measures/component?componentKey=student-management&metricKeys=coverage",
+                        returnStdout: true
+                    )
+
+                    echo "Sonar JSON: ${response}"
+                    def json = readJSON text: response
+
+                    if (json.component?.measures) {
+                        def coverage = json.component.measures[0].value
+                        echo "Coverage = ${coverage}%"
+                    } else {
+                        echo "Warning: coverage data not found in SonarQube response!"
+                    }
                 }
-            } catch (err) {
-                echo "Quality Gate non terminé, on continue..."
             }
         }
-    }
-}
 
+        stage('Quality Gate') {
+            steps {
+                script {
+                    try {
+                        timeout(time: 5, unit: 'MINUTES') {
+                            def qg = waitForQualityGate()
+                            if (qg.status != 'OK') {
+                                error "Quality Gate failed: ${qg.status}"
+                            } else {
+                                echo "Quality Gate passed: ${qg.status}"
+                            }
+                        }
+                    } catch (err) {
+                        error "Quality Gate check failed: ${err}"
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -67,14 +100,28 @@ pipeline {
                 """
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh "kubectl apply -f mysql-deployment.yaml --kubeconfig=${KUBE_CONFIG}"
+                sh "kubectl apply -f spring-deployment.yaml --kubeconfig=${KUBE_CONFIG}"
+            }
+        }
+
     }
 
     post {
         always {
             sh 'docker logout || true'
+            cleanWs()
         }
         success {
             echo "Pipeline terminé avec succès !"
+        }
+        failure {
+            mail to: 'fatma.benkhedher@esprit.tn',
+                 subject: "Build Failed: ${currentBuild.fullDisplayName}",
+                 body: "Check Jenkins console output: ${env.BUILD_URL}"
         }
     }
 }
