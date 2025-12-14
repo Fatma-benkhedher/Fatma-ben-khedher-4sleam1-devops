@@ -26,7 +26,7 @@ stage('Start SonarQube Pod') {
     steps {
         sh """
             kubectl apply -f sonarqube.yaml --kubeconfig=${KUBE_CONFIG}
-            kubectl rollout status deployment/sonarqube -n devops --kubeconfig=${KUBE_CONFIG} --timeout=120s
+            kubectl rollout status sonarqube -n devops --kubeconfig=${KUBE_CONFIG} --timeout=120s
         """
     }
 }
