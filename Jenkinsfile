@@ -63,7 +63,7 @@ stage('Start SonarQube Pod') {
             }
         }
 
-    stage('Quality Gate') {
+ stage('Quality Gate') {
     steps {
         script {
             timeout(time: 5, unit: 'MINUTES') {
@@ -77,6 +77,7 @@ stage('Start SonarQube Pod') {
         }
     }
 }
+
         stage('Build Docker Image') {
             steps {
                 sh """
