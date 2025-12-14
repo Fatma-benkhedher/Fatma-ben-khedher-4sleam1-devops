@@ -29,18 +29,19 @@ stage('Start SonarQube Pod') {
     }
 }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQubeServer') {
-                    sh """
-   mvn sonar:sonar \
-     -Dsonar.projectKey=student-management \
-     -Dsonar.host.url=http://localhost:30090 \
-     -Dsonar.login=$SONAR_TOKEN
-"""
-                }
-            }
+       stage('SonarQube Analysis') {
+    steps {
+        withCredentials([string(credentialsId: 'sonar-kuber-jenkins', variable: 'SONAR_TOKEN')]) {
+            sh """
+                mvn sonar:sonar \
+                    -Dsonar.projectKey=student-management \
+                    -Dsonar.host.url=http://localhost:30090 \
+                    -Dsonar.login=$SONAR_TOKEN
+            """
         }
+    }
+}
+
 
         stage('Check Coverage') {
             steps {
