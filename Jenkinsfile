@@ -24,8 +24,10 @@ pipeline {
         }
 stage('Start SonarQube Pod') {
     steps {
-        sh "kubectl apply -f sonarqube.yaml --kubeconfig=${KUBE_CONFIG}"
-        sh "kubectl rollout status sonarqube --kubeconfig=${KUBE_CONFIG} --timeout=120s"
+        sh """
+            kubectl apply -f sonarqube.yaml --kubeconfig=${KUBE_CONFIG} -n devops
+            kubectl rollout status deployment/sonarqube --kubeconfig=${KUBE_CONFIG} -n devops --timeout=120s
+        """
     }
 }
 
@@ -41,8 +43,6 @@ stage('Start SonarQube Pod') {
         }
     }
 }
-
-
         stage('Check Coverage') {
             steps {
                 script {
