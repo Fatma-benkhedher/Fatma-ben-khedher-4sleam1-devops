@@ -21,6 +21,18 @@ spec:
           env:
             - name: SONAR_ES_BOOTSTRAP_CHECKS_DISABLE
               value: "true"
+          volumeMounts:
+            - name: sonarqube-data
+              mountPath: /opt/sonarqube/data
+            - name: sonarqube-extensions
+              mountPath: /opt/sonarqube/extensions
+      volumes:
+        - name: sonarqube-data
+          persistentVolumeClaim:
+            claimName: sonarqube-data-pvc
+        - name: sonarqube-extensions
+          persistentVolumeClaim:
+            claimName: sonarqube-extensions-pvc
 ---
 apiVersion: v1
 kind: Service
