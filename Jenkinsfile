@@ -30,9 +30,11 @@ stage('Start SonarQube Pod') {
         """
     }
 }
-     stage('SonarQube Analysis') {
-    withSonarQubeEnv('SonarQubeServer') { 
-        sh "mvn sonar:sonar -Dsonar.projectKey=student-management -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
+    stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQubeServer') { 
+            sh "mvn sonar:sonar -Dsonar.projectKey=student-management -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
+        }
     }
 }
 
