@@ -30,18 +30,12 @@ stage('Start SonarQube Pod') {
         """
     }
 }
-      stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('sonarqube-server') { // Replace with your Jenkins SonarQube server name
-            sh """
-                mvn sonar:sonar \
-                    -Dsonar.projectKey=student-management \
-                    -Dsonar.host.url=http://localhost:30090 \
-                    -Dsonar.login=${SONAR_TOKEN}
-            """
-        }
+     stage('SonarQube Analysis') {
+    withSonarQubeEnv('SonarQubeServer') { 
+        sh "mvn sonar:sonar -Dsonar.projectKey=student-management -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
     }
 }
+
         stage('Check Coverage') {
             steps {
                 script {
