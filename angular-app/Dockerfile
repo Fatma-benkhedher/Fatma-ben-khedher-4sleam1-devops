@@ -1,5 +1,9 @@
+# Dockerfile pour projet statique
 FROM nginx:alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY src/ /usr/share/nginx/html/
+
+# Copier tous les fichiers statiques dans le dossier web d'Nginx
+COPY . /usr/share/nginx/html/
+
 EXPOSE 80
 
+CMD ["nginx", "-g", "daemon off;"]

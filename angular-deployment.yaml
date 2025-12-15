@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: angular
-        image: ameni2025/student-management-angular:latest
+        image: fatma/student-management-angular:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
