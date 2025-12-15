@@ -1,0 +1,25 @@
+<h2>Liste des départements</h2>
+
+<div *ngIf="loading">Chargement...</div>
+<div *ngIf="!loading && error" style="color:red">{{ error }}</div>
+
+<table *ngIf="!loading && !error" border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nom</th>
+      <th>Location</th>
+      <th>Téléphone</th>
+      <th>Head</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let d of departments">
+      <td>{{ d.idDepartment }}</td>
+      <td>{{ d.name }}</td>
+      <td>{{ d.location }}</td>
+      <td>{{ d.phone }}</td>
+      <td>{{ d.head }}</td>
+    </tr>
+  </tbody>
+</table>

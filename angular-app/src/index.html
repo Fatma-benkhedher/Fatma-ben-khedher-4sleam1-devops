@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Gestion des Départements</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+  <div class="container">
+
+    <header class="header">
+      <h1>🏢 Gestion des Départements</h1>
+      <p>ESPRIT - Student Management</p>
+    </header>
+
+    <!-- Statistiques -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon">🏷️</div>
+        <div class="stat-content">
+          <h3 id="total-departments">0</h3>
+          <p>Départements</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <h3 id="api-status">...</h3>
+          <p>Statut API</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des départements -->
+    <div class="card">
+      <div class="card-header">
+        <h2>📋 Liste des Départements</h2>
+        <button id="refresh-btn" class="btn btn-secondary">🔄 Actualiser</button>
+      </div>
+
+      <div id="loading" class="loading">Chargement...</div>
+      <div id="error-message" class="error-message" style="display:none;"></div>
+
+      <div id="departments-table-container">
+        <table id="departments-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Location</th>
+              <th>Téléphone</th>
+              <th>Head</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="departments-tbody"></tbody>
+        </table>
+
+        <div id="no-departments" class="no-data" style="display:none;">
+          <p>📚 Aucun département pour le moment</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+  </div>
+
+  <script src="app.js?v=2"></script>
+</body>
+</html>
+
